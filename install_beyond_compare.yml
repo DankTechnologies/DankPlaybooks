@@ -1,0 +1,47 @@
+---
+- name: Install and configure Beyond Compare 4 on Ubuntu
+  hosts: localhost
+  become: true
+  gather_facts: false
+
+  vars:
+    bc4_url: "https://www.scootersoftware.com/files/bcompare-4.4.7.28397_amd64.deb"
+    bc4_deb: "/tmp/bcompare.deb"
+
+  tasks:
+    - name: Check if license_key_path is provided
+      fail:
+        msg: "Call with -e 'license_key_path=/path/to/BC4Key.txt'"
+      when: license_key_path is not defined
+
+    - name: Download Beyond Compare 4
+      get_url:
+        url: "{{ bc4_url }}"
+        dest: "{{ bc4_deb }}"
+        mode: '0644'
+
+    - name: Install Beyond Compare 4
+      apt:
+        deb: "{{ bc4_deb }}"
+        state: present
+
+    - name: Ensure Beyond Compare 4 license directory exists
+      file:
+        path: /home/dan/.config/bcompare
+        state: directory
+        owner: dan
+        group: dan
+        mode: '0755'
+
+    - name: Read license key from file
+      slurp:
+        src: "{{ license_key_path }}"
+      register: license_key
+
+    - name: Copy Beyond Compare 4 license file
+      copy:
+        src: "{{ license_key_path }}"
+        dest: /home/dan/.config/bcompare/BC4Key.txt
+        owner: dan
+        group: dan
+        mode: '0600'

@@ -1,0 +1,70 @@
+---
+- name: Install latest packages on Debian-based hosts
+  hosts: localhost
+  become: true
+
+  vars:
+    sops_version: v3.8.1
+
+  tasks:
+    - name: Ensure all 3rd-party apt repos in place
+      include_tasks: add_apt_repos.yml
+
+    - name: Ensure latest media packages installed
+      apt:
+        name:
+          - audacious
+          - mpv
+          - transgui
+          - vlc
+        state: latest
+        update_cache: true
+
+    - name: Ensure latest techy packages installed
+      apt:
+        name:
+          - cifs-utils
+          - code
+          - containerd.io
+          - curl
+          - docker-buildx-plugin
+          - docker-ce
+          - docker-ce-cli
+          - docker-compose-plugin
+          - git
+          - gpg
+          - htop
+          - jq
+          - kdeconnect
+          - kubectl
+          - nano
+          - openssh-server
+          - pgadmin4-desktop
+          - redis-tools
+          - unattended-upgrades
+          - vault
+          - wget
+          - wireguard
+        state: latest
+        update_cache: true
+
+    - name: Ensure dan part of the docker group
+      user:
+        name: dan
+        groups: docker
+        append: true
+        state: present
+
+    - name: "Ensure sops installed at version {{ sops_version }}"
+      get_url:
+        url: "https://github.com/getsops/sops/releases/download/{{ sops_version }}/sops-{{ sops_version }}.linux.amd64"
+        dest: "/usr/local/bin/sops"
+        mode: '0755'
+
+    - name: One-off commands, run as dan
+      command: "{{ item }}"
+      loop:
+        - git config --global init.defaultBranch main
+        - git config --global user.name "Daniel Knobloch"
+      changed_when: false
+      become: false

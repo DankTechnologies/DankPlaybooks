@@ -1,0 +1,66 @@
+---
+- name: Ensure CIFS mounts are in /etc/fstab and create .smbcredentials
+  hosts: localhost
+  become: true
+  gather_facts: false
+
+  vars_prompt:
+    - name: smb_password
+      prompt: "Enter the SMB password"
+      private: true
+
+  tasks:
+    - name: Ensure specific host entries are in /etc/hosts
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          192.168.0.6     dbk-lt
+          192.168.0.155   dbk-lt2
+          192.168.0.204   bigjang
+          192.168.0.206   woowoo
+          192.168.0.207   ha
+        state: present
+
+    - name: Write SMB credentials to .smbcredentials
+      ansible.builtin.copy:
+        dest: /home/dan/.smbcredentials
+        content: |
+          username=dan
+          password={{ smb_password }}
+        owner: dan
+        group: dan
+        mode: '0600'
+#      no_log: true
+
+    - name: Ensure directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: dan
+        group: dan
+        mode: '0755'
+      loop:
+        - /mnt/woowoo/code
+        - /mnt/bigjang/backups
+        - /mnt/bigjang/documents
+        - /mnt/bigjang/downloads
+        - /mnt/bigjang/movies
+        - /mnt/bigjang/music
+        - /mnt/bigjang/pictures
+        - /mnt/bigjang/tv
+        - /mnt/bigjang/docker
+
+    - name: Ensure CIFS mounts are in /etc/fstab
+      blockinfile:
+        path: /etc/fstab
+        block: |
+          //woowoo/code /mnt/woowoo/code cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/backups /mnt/bigjang/backups cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/documents /mnt/bigjang/documents cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/downloads /mnt/bigjang/downloads cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/movies /mnt/bigjang/movies cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/music /mnt/bigjang/music cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/pictures /mnt/bigjang/pictures cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/tv /mnt/bigjang/tv cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+          //bigjang/docker /mnt/bigjang/docker cifs credentials=/home/dan/.smbcredentials,iocharset=utf8,uid=1000,gid=1000,noserverino 0 0
+        state: present
