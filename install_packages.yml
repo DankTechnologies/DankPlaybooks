@@ -90,6 +90,7 @@
         name:
           - yt-dlp
         state: latest
+      become: false
 
     # Into the weeds
     - name: Ensure dan part of the docker group

@@ -1,0 +1,19 @@
+---
+- name: Install VS Code extensions
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    vscode_extensions:
+      - DavidAnson.vscode-markdownlint
+      - ms-dotnettools.csharp
+      - ms-dotnettools.csdevkit
+      - ms-python.python
+      - redhat.ansible
+      - redhat.vscode-yaml
+
+  tasks:
+    - name: Install VS Code extensions
+      command: "code --install-extension {{ item }}"
+      with_items: "{{ vscode_extensions }}"
+      changed_when: true
