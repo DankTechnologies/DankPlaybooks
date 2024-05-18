@@ -52,20 +52,31 @@
         update_cache: true
 
     # Unconventional installs
-    - name: Download AWS CLI bundled installer
+    - name: Download AWS CLI installer zip
       get_url:
         url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
-        dest: "/tmp/awscliv2.zip"
+        dest: "/tmp/awscli.zip"
         mode: '0644'
 
     - name: Unzip AWS CLI installer
       unarchive:
-        src: "/tmp/awscliv2.zip"
+        src: "/tmp/awscli.zip"
         dest: "/tmp"
 
     - name: Install AWS CLI
       command: "/tmp/aws/install --update"
       changed_when: false
+
+    - name: Download bitwarden CLI zip
+      get_url:
+        url: "https://vault.bitwarden.com/download/?app=cli&platform=linux"
+        dest: "/tmp/bw.zip"
+        mode: '0644'
+
+    - name: Unzip bitwarden CLI
+      unarchive:
+        src: "/tmp/bw.zip"
+        dest: "/usr/local/bin"
 
     - name: "Ensure sops installed at version {{ sops_version }}"
       get_url:
