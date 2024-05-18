@@ -40,26 +40,53 @@
           - nano
           - openssh-server
           - pgadmin4-desktop
+          - python3-pip
           - redis-tools
+          - terraform
           - unattended-upgrades
+          - unzip
           - vault
           - wget
           - wireguard
         state: latest
         update_cache: true
 
-    - name: Ensure dan part of the docker group
-      user:
-        name: dan
-        groups: docker
-        append: true
-        state: present
+    # Unconventional installs
+    - name: Download AWS CLI bundled installer
+      get_url:
+        url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+        dest: "/tmp/awscliv2.zip"
+        mode: '0644'
+
+    - name: Unzip AWS CLI installer
+      unarchive:
+        src: "/tmp/awscliv2.zip"
+        dest: "/tmp"
+
+    - name: Install AWS CLI
+      command: "/tmp/aws/install --update"
+      changed_when: false
 
     - name: "Ensure sops installed at version {{ sops_version }}"
       get_url:
         url: "https://github.com/getsops/sops/releases/download/{{ sops_version }}/sops-{{ sops_version }}.linux.amd64"
         dest: "/usr/local/bin/sops"
         mode: '0755'
+
+    # Python
+    - name: Ensure latest python modules installed
+      pip:
+        name:
+          - yt-dlp
+        state: latest
+
+    # Into the weeds
+    - name: Ensure dan part of the docker group
+      user:
+        name: dan
+        groups: docker
+        append: true
+        state: present
 
     - name: One-off commands, run as dan
       command: "{{ item }}"
