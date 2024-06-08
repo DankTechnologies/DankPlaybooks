@@ -20,6 +20,13 @@
         state: latest
         update_cache: true
 
+    - name: Ensure WineHQ stable package installed with recommended packages
+      apt:
+        name: winehq-stable
+        state: present
+        install_recommends: true
+        update_cache: true
+
     - name: Ensure latest techy packages installed
       apt:
         name:
@@ -34,6 +41,7 @@
           - git
           - gpg
           - htop
+          - iperf
           - jq
           - kdeconnect
           - kubectl
