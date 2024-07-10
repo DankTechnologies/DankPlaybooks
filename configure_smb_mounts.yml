@@ -10,18 +10,6 @@
       private: true
 
   tasks:
-    - name: Ensure specific host entries are in /etc/hosts
-      blockinfile:
-        path: /etc/hosts
-        block: |
-          192.168.0.6     dbk-lt
-          192.168.0.83    dbk-rpi
-          192.168.0.155   dbk-lt2
-          192.168.0.204   bigjang
-          192.168.0.206   woowoo
-          192.168.0.207   ha
-        state: present
-
     - name: Write SMB credentials to .smbcredentials
       ansible.builtin.copy:
         dest: /home/dan/.smbcredentials

@@ -3,9 +3,6 @@
   hosts: localhost
   become: true
 
-  vars:
-    sops_version: v3.8.1
-
   tasks:
     - name: Ensure all 3rd-party apt repos in place
       include_tasks: add_apt_repos.yml
@@ -85,12 +82,6 @@
       unarchive:
         src: "/tmp/bw.zip"
         dest: "/usr/local/bin"
-
-    - name: "Ensure sops installed at version {{ sops_version }}"
-      get_url:
-        url: "https://github.com/getsops/sops/releases/download/{{ sops_version }}/sops-{{ sops_version }}.linux.amd64"
-        dest: "/usr/local/bin/sops"
-        mode: '0755'
 
     # Python
     - name: Ensure latest python modules installed
