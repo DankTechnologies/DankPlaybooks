@@ -1,0 +1,35 @@
+---
+- name: Install Joplin
+  hosts: localhost
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Install Joplin dependencies
+      apt:
+        name:
+          - libfuse2
+        state: present
+
+    - name: Install Joplin via official script
+      become: false
+      shell: |
+        wget -O - https://raw.githubusercontent.com/laurent22/joplin/master/Joplin_install_and_update.sh | bash
+      args:
+        creates: /usr/bin/joplin
+
+    - name: Create Joplin desktop icon
+      copy:
+        dest: /usr/share/applications/joplin.desktop
+        content: |
+          [Desktop Entry]
+          Name=Joplin
+          Comment=Joplin for Desktop
+          Exec=/usr/bin/joplin
+          Icon=icon
+          Type=Application
+          Categories=Office;
+        mode: '0644'
+
+    - name: Update desktop database
+      command: update-desktop-database
