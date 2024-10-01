@@ -5,5 +5,5 @@
       ansible.builtin.lineinfile:
         path: "/home/dan/.ssh/authorized_keys"
         line: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHvu5Oa7j6YOom0rIgaTjbDN17/O+VOBTgdtLRDE8RUk dan@dbk-home"
-        create: yes
+        create: true
         state: present

@@ -1,18 +1,15 @@
 ---
-- name: Install latest packages on Debian-based hosts
+- name: Install latest packages on Linux Mint
   hosts: localhost
   become: true
 
   tasks:
-    - name: Stop snapd
-      ansible.builtin.service:
-        name: snapd
-        state: stopped
-        enabled: false
-
     - name: Ensure these are gone
       apt:
         name:
-          - snapd
+          - celluloid
+          - hypnotix
+          - matrix
+          - rhythmbox
           - thunderbird
         state: absent

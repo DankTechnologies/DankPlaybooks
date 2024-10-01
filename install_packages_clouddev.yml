@@ -1,0 +1,56 @@
+---
+- name: Install latest packages on Debian-based hosts
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Update and upgrade APT packages
+      apt:
+        update_cache: true
+        upgrade: true
+
+    - name: Add Hashicorp Stable APT repository
+      ansible.builtin.deb822_repository:
+        name: hashicorp
+        types: [deb]
+        uris: "https://apt.releases.hashicorp.com"
+        signed_by: "https://apt.releases.hashicorp.com/gpg"
+        suites: ["{{ ansible_distribution_release | lower }}"]
+        components: [main]
+        state: present
+        enabled: true
+
+    - name: Add Kubernetes APT repository
+      ansible.builtin.deb822_repository:
+        name: kubernetes
+        types: [deb]
+        uris: "https://pkgs.k8s.io/core:/stable:/v1.30/deb/"
+        signed_by: "https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key"
+        suites: [/]
+        state: present
+        enabled: true
+
+    - name: Ensure latest clouddev packages installed
+      apt:
+        name:
+          - kubectl
+          - terraform
+          - vault
+        state: latest
+        update_cache: true
+
+    # Unconventional installs
+    - name: Download AWS CLI installer zip
+      get_url:
+        url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+        dest: "/tmp/awscli.zip"
+        mode: '0644'
+
+    - name: Unzip AWS CLI installer
+      unarchive:
+        src: "/tmp/awscli.zip"
+        dest: "/tmp"
+
+    - name: Install AWS CLI
+      command: "/tmp/aws/install --update"
+      changed_when: false

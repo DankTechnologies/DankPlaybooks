@@ -1,0 +1,85 @@
+---
+- name: Install latest packages on Debian-based hosts
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Add VSCode APT repository
+      ansible.builtin.deb822_repository:
+        name: vscode
+        types: [deb]
+        uris: "https://packages.microsoft.com/repos/code"
+        signed_by: "https://packages.microsoft.com/keys/microsoft.asc"
+        suites: [stable]
+        components: [main]
+        architectures: [amd64]
+        state: present
+        enabled: true
+
+    - name: Add Docker APT repository for Linux Mint
+      ansible.builtin.deb822_repository:
+        name: docker
+        state: present
+        types: [deb]
+        uris: "https://download.docker.com/linux/ubuntu"
+        suites: [noble]
+        components: [stable]
+        architectures: [amd64]
+        signed_by: "https://download.docker.com/linux/ubuntu/gpg"
+        enabled: true
+
+
+    - name: Add pgAdmin APT repository
+      ansible.builtin.deb822_repository:
+        name: pgadmin
+        types: [deb]
+        uris: "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/noble"
+        suites: [pgadmin4]
+        components: [main]
+        architectures: [amd64]
+        signed_by: "https://www.pgadmin.org/static/packages_pgadmin_org.pub"
+        state: present
+        enabled: true
+
+    - name: Ensure latest dev packages installed
+      apt:
+        name:
+          - cifs-utils
+          - code
+          - containerd.io
+          - curl
+          - docker-buildx-plugin
+          - docker-ce
+          - docker-ce-cli
+          - docker-compose-plugin
+          - git
+          - gpg
+          - htop
+          - iperf
+          - jq
+          - nano
+          - openssh-server
+          - pgadmin4-desktop
+          - redis-tools
+          - unzip
+          - wget
+          - wireguard
+          - yt-dlp
+        state: latest
+        update_cache: true
+
+    # Into the weeds
+    - name: Ensure dan part of the docker group
+      user:
+        name: dan
+        groups: docker
+        append: true
+        state: present
+
+    - name: One-off commands, run as dan
+      command: "{{ item }}"
+      loop:
+        - git config --global init.defaultBranch main
+        - git config --global user.name "Daniel Knobloch"
+      changed_when: false
+      become: false

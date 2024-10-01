@@ -1,0 +1,23 @@
+---
+- name: Install latest packages on Debian-based hosts
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Ensure latest media packages installed
+      apt:
+        name:
+          - audacious
+          - kdeconnect
+          - mpv
+          - transgui
+          - vlc
+        state: latest
+        update_cache: true
+
+    - name: Install Joplin via official script
+      become: false
+      shell: |
+        wget -O - https://raw.githubusercontent.com/laurent22/joplin/master/Joplin_install_and_update.sh | bash
+      args:
+        creates: /usr/bin/joplin
