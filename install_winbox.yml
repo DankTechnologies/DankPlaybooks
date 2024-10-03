@@ -1,0 +1,47 @@
+---
+- name: Install Winbox
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+
+    - name: Install necessary packages (Wine and dependencies)
+      apt:
+        name:
+          - wine
+          - winetricks
+        state: present
+
+    - name: Create directory for Winbox
+      file:
+        path: /opt/winbox
+        state: directory
+        mode: '0755'
+
+    - name: Download Winbox executable
+      get_url:
+        url: https://download.mikrotik.com/routeros/winbox/3.41/winbox64.exe
+        dest: /opt/winbox/winbox64.exe
+        mode: '0755'
+
+    - name: Create a desktop entry for Winbox
+      become: false
+      copy:
+        dest: /home/dan/.local/share/applications/winbox.desktop
+        content: |
+          [Desktop Entry]
+          Name=Winbox
+          Exec=wine /opt/winbox/winbox64.exe
+          Type=Application
+          Icon=network-wired
+          Categories=Network;
+        mode: '0755'
+
+    - name: Ensure Wine runs Winbox correctly
+      become: false
+      command: winecfg
+      args:
+        creates: ~/.wine
